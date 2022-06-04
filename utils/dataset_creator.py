@@ -85,11 +85,12 @@ def main(opt):
         if c%1000 == 0:
             print(str(c)+' elements processed.')
         image_id += 1
-    
+
+
+    image_id = 0
     #creation of training_set
-    for im in imgs[test_len:train_len]:
+    for im in imgs[test_len:test_len+train_len]:
         c += 1
-        image_id = 0
         shutil.copyfile(im, os.path.join(train_dir, str(image_id)+im.suffix))
         label_filename = str(image_id)+'.txt'
         with open(os.path.join(train_dir, label_filename), 'w') as f:
@@ -98,11 +99,10 @@ def main(opt):
             print(str(c)+' elements processed.')
         image_id += 1
 
-
+    image_id = 0
     #creation of val_set
-    for im in imgs[train_len:val_len]:
+    for im in imgs[test_len+train_len:test_len+train_len+val_len]:
         c += 1
-        image_id = 0
         shutil.copyfile(im, os.path.join(val_dir, str(image_id)+im.suffix))
         label_filename = str(image_id)+'.txt'
         with open(os.path.join(val_dir, label_filename), 'w') as f:
