@@ -1,9 +1,7 @@
 import os
-import glob
 import argparse
 from pathlib import Path
 import random
-from numpy import sort
 import shutil
 
 def get_args():
