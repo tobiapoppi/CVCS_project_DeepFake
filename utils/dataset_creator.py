@@ -73,6 +73,9 @@ def main(opt):
     c = 0
     image_id = 0
 
+    count_real = 0
+    count_fake = 0
+
     #creation of test_set
     for im in imgs[0:test_len]:
         c += 1
@@ -80,6 +83,11 @@ def main(opt):
         label_filename = str(image_id)+'.txt'
         with open(os.path.join(test_dir, label_filename), 'w') as f:
             f.write(im.parent.stem[0])
+            if im.parent.stem[0] == '0':
+                count_real += 1
+            else:
+                count_fake += 1
+
         if c%1000 == 0:
             print(str(c)+' elements processed.')
         image_id += 1
@@ -93,6 +101,11 @@ def main(opt):
         label_filename = str(image_id)+'.txt'
         with open(os.path.join(train_dir, label_filename), 'w') as f:
             f.write(im.parent.stem[0])
+            if im.parent.stem[0] == '0':
+                count_real += 1
+            else:
+                count_fake += 1
+        
         if c%1000 == 0:
             print(str(c)+' elements processed.')
         image_id += 1
@@ -105,10 +118,18 @@ def main(opt):
         label_filename = str(image_id)+'.txt'
         with open(os.path.join(val_dir, label_filename), 'w') as f:
             f.write(im.parent.stem[0])
+            if im.parent.stem[0] == '0':
+                count_real += 1
+            else:
+                count_fake += 1
+            
         if c%1000 == 0:
             print(str(c)+' elements processed.')
         image_id += 1
     
+    print('Real images: ' + str(count_real))
+    print('Fake images: ' + str(count_fake))
+
     print('FINISHED!')
 
 
