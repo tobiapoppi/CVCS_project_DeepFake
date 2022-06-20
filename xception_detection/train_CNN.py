@@ -34,9 +34,11 @@ def main():
 	val_dataset_size = len(val_dataset)
 	model = model_selection(modelname='xception', num_out_classes=2, dropout=0.5)
 	if continue_train:
-		model.load_state_dict(torch.load(model_path))
-	model = model.cuda()
-	criterion = nn.CrossEntropyLoss()
+		model.load_state_dict(torch.load(model_path, map_location='cpu'))
+	#model = model.cuda()
+	realc, fakec = train_dataset.get_counts()
+	class_weights = [realc, fakec]
+	criterion = nn.CrossEntropyLoss(class_weights)
 	optimizer = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08)
 	scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
 	model = nn.DataParallel(model)
@@ -54,8 +56,8 @@ def main():
 		for (image, labels) in train_loader:
 			iter_loss = 0.0
 			iter_corrects = 0.0
-			image = image.cuda()
-			labels = labels.cuda()
+			#image = image.cuda()
+			#labels = labels.cuda()
 			optimizer.zero_grad()
 			outputs = model(image)
 			_, preds = torch.max(outputs.data, 1)
@@ -67,8 +69,13 @@ def main():
 			iter_corrects = torch.sum(preds == labels.data).to(torch.float32)
 			train_corrects += iter_corrects
 			iteration += 1
-			if not (iteration % 20):
-				print('iteration {} train loss: {:.4f} Acc: {:.4f}'.format(iteration, iter_loss / batch_size, iter_corrects / batch_size))
+			if not (iteration % 20): #enter only if multiple of 20
+				#the dataset is strongly unbalanced, so we need to check some others metrics like f1-score
+				this_iter_acc = iter_corrects / batch_size
+				this_iter_f1 = f1_loss(outputs, labels)
+				print('iteration {} train loss: {:.4f} Acc: {:.4f} F1-score: {:.4f}'.format(iteration, iter_loss / batch_size, iter_corrects / batch_size, this_iter_f1))
+
+
 		epoch_loss = train_loss / train_dataset_size
 		epoch_acc = train_corrects / train_dataset_size
 		print('epoch train loss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
@@ -97,7 +104,43 @@ def main():
 	torch.save(model.module.state_dict(), os.path.join(output_path, "best.pkl"))
 
 
-
+def f1_loss(y_true:torch.Tensor, y_pred:torch.Tensor, is_training=False) -> torch.Tensor:
+    '''Calculate F1 score. Can work with gpu tensors
+    
+    The original implmentation is written by Michal Haltuf on Kaggle.
+    
+    Returns
+    -------
+    torch.Tensor
+        `ndim` == 1. 0 <= val <= 1
+    
+    Reference
+    ---------
+    - https://www.kaggle.com/rejpalcz/best-loss-function-for-f1-score-metric
+    - https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score
+    - https://discuss.pytorch.org/t/calculating-precision-recall-and-f1-score-in-case-of-multi-label-classification/28265/6
+    
+    '''
+    assert y_true.ndim == 1
+    assert y_pred.ndim == 1 or y_pred.ndim == 2
+    
+    if y_pred.ndim == 2:
+        y_pred = y_pred.argmax(dim=1)
+        
+    
+    tp = (y_true * y_pred).sum().to(torch.float32)
+    tn = ((1 - y_true) * (1 - y_pred)).sum().to(torch.float32)
+    fp = ((1 - y_true) * y_pred).sum().to(torch.float32)
+    fn = (y_true * (1 - y_pred)).sum().to(torch.float32)
+    
+    epsilon = 1e-7
+    
+    precision = tp / (tp + fp + epsilon)
+    recall = tp / (tp + fn + epsilon)
+    
+    f1 = 2* (precision*recall) / (precision + recall + epsilon)
+    f1.requires_grad = is_training
+    return f1
 
 if __name__ == '__main__':
 	parse = argparse.ArgumentParser(
