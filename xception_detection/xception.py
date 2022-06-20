@@ -106,6 +106,7 @@ class Block(nn.Module):
             skip = inp
 
         x+=skip
+        print(x.shape)
         return x
 
 
@@ -133,19 +134,20 @@ class Xception(nn.Module):
 
         self.block1=Block(64,128,2,2,start_with_relu=False,grow_first=True)
         self.block2=Block(128,256,2,2,start_with_relu=True,grow_first=True)
-        self.block3=Block(256,728,2,2,start_with_relu=True,grow_first=True)
+        self.block3=Block(256,512,2,2,start_with_relu=True,grow_first=True)
+        self.block3b=Block(512,840,2,1,start_with_relu=True,grow_first=True)
 
-        self.block4=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block5=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block6=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block7=Block(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block4=Block(840,840,3,1,start_with_relu=True,grow_first=True)
+        self.block5=Block(840,840,3,1,start_with_relu=True,grow_first=True)
+        self.block6=Block(840,840,3,1,start_with_relu=True,grow_first=True)
+        self.block7=Block(840,840,3,1,start_with_relu=True,grow_first=True)
 
-        self.block8=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block9=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block10=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block11=Block(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block8=Block(840,840,3,1,start_with_relu=True,grow_first=True)
+        self.block9=Block(840,840,3,1,start_with_relu=True,grow_first=True)
+        self.block10=Block(840,840,3,1,start_with_relu=True,grow_first=True)
+        self.block11=Block(840,840,3,1,start_with_relu=True,grow_first=True)
 
-        self.block12=Block(728,1024,2,2,start_with_relu=True,grow_first=False)
+        self.block12=Block(840,1024,2,2,start_with_relu=True,grow_first=False)
 
         self.conv3 = SeparableConv2d(1024,1536,3,1,1)
         self.bn3 = nn.BatchNorm2d(1536)
@@ -156,15 +158,15 @@ class Xception(nn.Module):
 
         self.fc = nn.Linear(2048, num_classes)
 
-        # #------- init weights --------
-        # for m in self.modules():
-        #     if isinstance(m, nn.Conv2d):
-        #         n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
-        #         m.weight.data.normal_(0, math.sqrt(2. / n))
-        #     elif isinstance(m, nn.BatchNorm2d):
-        #         m.weight.data.fill_(1)
-        #         m.bias.data.zero_()
-        # #-----------------------------
+        #------- init weights --------
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                n = m.kernel_size[0] * m.kernel_size[1] * m.out_channels
+                m.weight.data.normal_(0, math.sqrt(2. / n))
+            elif isinstance(m, nn.BatchNorm2d):
+                m.weight.data.fill_(1)
+                m.bias.data.zero_()
+        #-----------------------------
 
     def features(self, input):
         x = self.conv1(input) #(32, 299, 299)
@@ -178,6 +180,7 @@ class Xception(nn.Module):
         x = self.block1(x)
         x = self.block2(x)
         x = self.block3(x)
+        x = self.block3b(x)
         x = self.block4(x)
         x = self.block5(x)
         x = self.block6(x)
