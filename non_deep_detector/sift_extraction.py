@@ -11,6 +11,7 @@ import glob
 from matplotlib import pyplot as plt
 import sklearn
 from sklearn.cluster import KMeans
+import random
 
 
 train_path = '/home/elena/repos/CVCS_project_DeepFake/output/train'
@@ -31,7 +32,7 @@ x = []
 sift = cv2.SIFT_create(200)
 
 for i, im in enumerate(train_files):
-    image = cv2.imread(im, 0)
+    image = cv2.imread(im)
     kp, des = sift.detectAndCompute(image, None)
     [x.append(des[i]) for i in range(len(des))]
     # surf = cv2.xfeatures2d.SURF_CUDA(400)
@@ -43,22 +44,28 @@ for i, im in enumerate(train_files):
 # plt.imshow(img2), plt.show()
 
 
-C = 512
+C = 256
 kmeans = KMeans(n_clusters=C)
 kmeans.fit_transform(np.array(x))
 BoW = kmeans.cluster_centers_
 
-sift_unlimited = cv2.SIFT_create()
+sift_unlimited = cv2.SIFT_create(500)
 new_img = []
 labels = []
 for i, im in enumerate(train_files):
     image = cv2.imread(im, 0)
     kp, des = sift_unlimited.detectAndCompute(image, None)
     clusters = kmeans.predict(des)
+    epsilon = random.random()
     histogram = [list(clusters).count(i) for i in range(C)]
     new_img.append(histogram)
     with open(train_lab_files[i]) as y:
         labels.append(y.read())
+    # if epsilon>0.9:
+    #     print('Image example-----------------------------------------')
+    #     print('Label', labels[-1])
+    #     print('Number of key-points', len(des))
+    #     print('Histogram vector', histogram)
 assert len(train_files)==len(labels)
 yTrain = np.array(labels)
 xTrain = np.array(new_img)
