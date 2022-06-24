@@ -19,10 +19,9 @@ Second Dataset: https://github.com/ondyari/FaceForensics
 
 3. With the script furnished by the FaceForensics repository, download all the subsets of FF++.
 
-4. Run the script `dataset_creator.py` giving as parameters the root path of extracted sets of the first dataset (challenge), the root path of downloaded subsets of the second dataset (FF++), the dataset creation path (a new output folder) and, optionally, the split percentages of validation and test set.
+4. Run the script `dataset_creator.py` giving as parameters the root path of extracted sets of the first dataset (challenge), the root path of downloaded subsets of the second dataset (FF++), the dataset creation path (a new output folder) and, optionally, the split percentages of validation and test set. This script will automatically create the annotation .txt files with a 0 if the class is Real or 1 if the class is Fake.
 * `python dataset_creator.py -c <sets_path_challenge_dataset> -f <ff++_dataset_main_folder> -o <output_path>/dataset`
 
-This script will automatically create the annotation .txt files with a 0 if the class is Real or 1 if the class is Fake.
 
 5. If you also need the txt_list files (train.txt, val.txt and test.txt) containing the list of image paths followed by the label, you can use another script aswell.
-`python data_list_creator.py -p <train_set_path> -o <output_path>/train.txt`
+* `python data_list_creator.py -p <train_set_path> -o <output_path>/train.txt`
