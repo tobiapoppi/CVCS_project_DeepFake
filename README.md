@@ -11,6 +11,12 @@ Task 1 of the challenge in the link is the Detection task.
 
 Second Dataset: https://github.com/ondyari/FaceForensics
 
+## Setting up the environment
+* `conda create -n cvcs python=3.6`
+* `conda activate cvcs`
+* `pip install -r requirements.txt`
+
+
 ## Dataset Creation
 
 1. First download from the upper link files "0-CelebA.zip, 0-FFHQ.zip, 1-ATTGAN.zip, 1-GDWCT.zip, 1-StarGAN.zip, 1-STYLEGAN.zip, 1-STYLEGAN2.zip" from the section "release of full training set".
