@@ -15,6 +15,7 @@ import torch
 from torchvision import transforms
 import argparse
 from sklearn import metrics as m
+from torch import nn
 
 def euclidean_distance(query, data):
     query = np.expand_dims(query,0)
@@ -38,21 +39,21 @@ def get_args():
     parser.add_argument(
         "-m",
         "--metric",
-        default='CosineSimilarity',
+        default='EuclideanDistance',
         type=str,
         help="Cosine Similarity or Euclidean Distance",
     )
     parser.add_argument(
         "-fe",
         "--features",
-        default=None,
+        default='resnet',
         type=str,
         help="Type of features extraction applied before the metric.",
     )
     parser.add_argument(
         "-q",
         "--query",
-        default=0,
+        default=5,
         type=int,
         help="Index of the chosen query.",
     )
@@ -66,14 +67,14 @@ def get_args():
     parser.add_argument(
         "-d",
         "--resnetdepth",
-        default=16,
+        default=18,
         type=int,
         help="Choose the resnet depth",
     )
     parser.add_argument(
         "-n",
         "--matching_number",
-        default=10,
+        default=5,
         type=int,
         help='Choose the number of similar/unsimilar images you are looking for.'
     )
@@ -91,9 +92,9 @@ def main(opt):
     query_id = opt.query
     norm = opt.normalization
     n = opt.matching_number
-    train_path = '/home/elena/repos/CVCS_project_DeepFake/output/train'
-    test_path = '/home/elena/repos/CVCS_project_DeepFake/output/test'
-    val_path = '/home/elena/repos/CVCS_project_DeepFake/output/validation'
+    train_path = '/home/elena/repos/CVCS_project_DeepFake/cvcs_dataset/train'
+    test_path = '/home/elena/repos/CVCS_project_DeepFake/cvcs_dataset/test'
+    val_path = '/home/elena/repos/CVCS_project_DeepFake/cvcs_dataset/validation'
 
     train_files = glob.glob(train_path + '/*.png') + glob.glob(train_path + '/*.jpg')
     train_lab_files = glob.glob(train_path + '/*.txt')
@@ -111,13 +112,15 @@ def main(opt):
         mean=[0.485, 0.456, 0.406],
         std=[0.229, 0.224, 0.225])
 
+    maxpool = nn.MaxPool2d(3)
+
     if norm:
         transform = transforms.Compose(
-        [transforms.RandomCrop(224, padding=10, pad_if_needed=True),
+        [transforms.Resize((224, 224)),
          # transforms.ToTensor(),
          torchvision_normalization])
     else:
-        transform = transforms.RandomCrop(224, padding=10, pad_if_needed=True)
+        transform = transforms.Resize((224, 224))
 
     if feat_extractor=='resnet':
         depth = opt.resnetdepth
@@ -133,6 +136,8 @@ def main(opt):
             similarities = []
             for i, im in enumerate(tot_files):
                 image = cv2.imread(im)
+                # if image.shape[0]==1024:
+                #     image = maxpool(image)
                 image = torch.swapaxes(torch.from_numpy(image).to(torch.float), 1, 2)
                 image = torch.swapaxes(image, 0, 1)
                 image = torch.unsqueeze(image, 0)
@@ -146,11 +151,12 @@ def main(opt):
             similar_images = [tot_files[idx] for idx in matching_imgs]
             dismatching_imgs = np.argsort(similarities)[:n]
             unsimilar_images = [tot_files[idx] for idx in dismatching_imgs]
-
         if metric=='EuclideanDistance':
             distances = []
             for i, im in enumerate(tot_files):
                 image = cv2.imread(im)
+                # if image.shape[0] == 1024:
+                #     image = maxpool(image)
                 image = torch.swapaxes(torch.from_numpy(image).to(torch.float), 1, 2)
                 image = torch.swapaxes(image, 0, 1)
                 image = torch.unsqueeze(image, 0)
@@ -166,20 +172,20 @@ def main(opt):
 
 
 
-        with open('/home/elena/repos/CVCS_project_DeepFake/image_retrieval/results.txt', 'a') as f:
-            f.write('\n')
-            f.write(feat_extractor+'-'+depth)
+        with open(path, 'a') as f:
+            f.write('##\n')
+            f.write(feat_extractor+'-'+str(depth))
             f.write(metric)
             f.write('\n')
-            f.write('query image: \n')
+            f.write('# \n')
             f.write(tot_files[query_id]+'\n')
-            f.write('similar images: \n')
+            f.write('# \n')
             f.write(str(similar_images)+'\n')
-            f.write('unsimilar images: \n')
+            f.write('# \n')
             f.write(str(unsimilar_images))
 
     if feat_extractor == 'HarrisDetection':
-        transform = transforms.RandomCrop(224, padding=10, pad_if_needed=True)
+        transform = transforms.Resize((299, 299))
         query = cv2.imread(train_files[query_id])
         print(type(query))
         query = torch.swapaxes(torch.from_numpy(query).to(torch.float), 1, 2)
@@ -195,6 +201,8 @@ def main(opt):
             similarities = []
             for i, im in enumerate(tot_files):
                 image = cv2.imread(im)
+                # if image.shape[0]==1024:
+
                 image = torch.swapaxes(torch.from_numpy(image).to(torch.float), 1, 2)
                 image = torch.swapaxes(image, 0, 1)
                 image = torch.unsqueeze(image, 0)
@@ -215,7 +223,7 @@ def main(opt):
 
         if metric == 'EuclideanDistance':
             distances = []
-            query_features = np.expand_dims(query_features, 0)
+            #query_features = np.expand_dims(query_features, 0)
             for i, im in enumerate(tot_files):
                 image = cv2.imread(im)
                 image = torch.swapaxes(torch.from_numpy(image).to(torch.float), 1, 2)
@@ -235,16 +243,16 @@ def main(opt):
             dismatching_imgs = np.argsort(distances)[-n:]
             unsimilar_images = [tot_files[idx] for idx in dismatching_imgs]
 
-        with open('/home/elena/repos/CVCS_project_DeepFake/image_retrieval/results.txt', 'a') as f:
-            f.write('\n')
+        with open(path, 'a') as f:
+            f.write('##\n')
             f.write(feat_extractor + '-' )
             f.write(metric)
             f.write('\n')
-            f.write('query image: \n')
+            f.write('# \n')
             f.write(tot_files[query_id] + '\n')
-            f.write('similar images: \n')
+            f.write('# \n')
             f.write(str(similar_images) + '\n')
-            f.write('unsimilar images: \n')
+            f.write('# \n')
             f.write(str(unsimilar_images))
 
 
