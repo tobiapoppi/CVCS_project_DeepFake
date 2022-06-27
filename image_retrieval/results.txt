@@ -1,0 +1,33 @@
+resnet-CosineSimilarity
+query image: 
+/home/elena/repos/CVCS_project_DeepFake/output/train/7808.png
+similar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/validation/1016.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/6136.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/8899.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/710.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/86.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/493.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/7862.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/4186.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/824.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/7808.png']
+unsimilar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/train/3663.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/1918.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/5533.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/748.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/5978.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/8020.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/validation/1171.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/1134.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/4149.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/6595.png']
+
+resnet-EuclideanDistance
+query image: 
+/home/elena/repos/CVCS_project_DeepFake/output/train/7808.png
+similar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/train/7808.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/8944.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/2303.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/824.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/2070.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/1718.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/400.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/2426.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/33.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/2988.jpg']
+unsimilar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/train/2486.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/1762.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/3455.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/5360.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/2821.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/359.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/2355.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/1178.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/3346.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/5774.png']
+
+
+HarrisDetection-EuclideanDistance
+query image: 
+/home/elena/repos/CVCS_project_DeepFake/output/train/7808.png
+similar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/test/233.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/5223.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/2266.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/1015.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/4226.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/8238.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/957.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/224.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/7065.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/validation/69.png']
+unsimilar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/validation/277.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/9470.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/test/748.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/9506.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/test/503.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/5273.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/691.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/7308.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/3546.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/9594.jpg']
+
+
+HarrisDetection-CosineSimilarity
+query image: 
+/home/elena/repos/CVCS_project_DeepFake/output/train/7808.png
+similar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/train/2605.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/1341.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/2556.png', '/home/elena/repos/CVCS_project_DeepFake/output/validation/1121.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/622.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/9334.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/197.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/1459.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/5900.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/8917.png']
+unsimilar images: 
+['/home/elena/repos/CVCS_project_DeepFake/output/validation/2242.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/827.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/3440.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/5859.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/4387.png', '/home/elena/repos/CVCS_project_DeepFake/output/train/983.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/test/415.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/2930.png', '/home/elena/repos/CVCS_project_DeepFake/output/test/1237.jpg', '/home/elena/repos/CVCS_project_DeepFake/output/train/8443.jpg']
