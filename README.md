@@ -12,7 +12,7 @@ Task 1 of the challenge in the link is the Detection task.
 Second Dataset: https://github.com/ondyari/FaceForensics
 
 ## Setting up the environment
-* `conda create -n cvcs python=3.6`
+* `conda create -n cvcs python=3.7`
 * `conda activate cvcs`
 * `pip install -r requirements.txt`
 
