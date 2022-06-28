@@ -41,7 +41,7 @@ This dataset is in the Pascal-VOC format.
 
 * Download the dataset: `wget -P data http://www.di.ens.fr/willow/research/headdetection/release/HollywoodHeads.zip`
 * Unpack it: `unzip data/HollywoodHeads.zip -d data`
-* Remove all the images and annotations without a head: 'python dataset_register.py' (Rember to specify your dataset path inside the script's main!)
+* Remove all the images and annotations without a head: `python dataset_register.py` (Rember to specify your dataset path inside the script's main!)
 
 ## EfficientDet Head Detector Training
 * `python train.py --snapshot imagenet --phi 0 --gpu 0 -- random-transform --compute-val-loss --freeze-backbone --batch-size 32 --steps 1000 --pascal <hollywoodheads_dataset_path>`
