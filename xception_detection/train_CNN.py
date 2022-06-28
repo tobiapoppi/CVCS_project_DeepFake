@@ -7,7 +7,8 @@ from torch.optim import lr_scheduler
 import argparse
 import os
 import cv2
-
+from sklearn.utils import class_weight
+import numpy as np
 from models import model_selection
 from mesonet import Meso4, MesoInception4
 from dataset.transform import xception_default_data_transforms
@@ -35,10 +36,18 @@ def main():
 	model = model_selection(modelname='xception', num_out_classes=2, dropout=0.5)
 	if continue_train:
 		model.load_state_dict(torch.load(model_path, map_location='cpu'))
-	#model = model.cuda()
-	realc, fakec = train_dataset.get_counts()
-	class_weights = [realc, fakec]
+	model = model.cuda()
+	#realc, fakec = train_dataset.get_counts()
+	#class_weights = [realc, fakec]
+	labels = []
+	for _, targets in train_loader:
+		for target in targets:
+			labels.append(int(target))
+	classes = np.arange(2)
+	class_weights = class_weight.compute_class_weight(class_weight='balanced', classes=classes, y=np.array(labels))
+	class_weights = torch.tensor(class_weights, dtype=torch.float).cuda()
 	criterion = nn.CrossEntropyLoss(class_weights)
+	# optimizer = optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 	optimizer = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08)
 	scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
 	model = nn.DataParallel(model)
