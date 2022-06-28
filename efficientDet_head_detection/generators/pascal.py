@@ -41,7 +41,8 @@ voc_classes = {
     'sheep': 16,
     'sofa': 17,
     'train': 18,
-    'tvmonitor': 19
+    'tvmonitor': 19,
+    'head': 20
 }
 
 
@@ -72,7 +73,7 @@ class PascalVocGenerator(Generator):
             data_dir,
             set_name,
             classes=voc_classes,
-            image_extension='.jpg',
+            image_extension='.jpeg',
             skip_truncated=False,
             skip_difficult=False,
             **kwargs
@@ -93,7 +94,7 @@ class PascalVocGenerator(Generator):
         self.set_name = set_name
         self.classes = classes
         self.image_names = [l.strip().split(None, 1)[0] for l in
-                            open(os.path.join(data_dir, 'ImageSets', 'Main', set_name + '.txt')).readlines()]
+                            open(os.path.join(data_dir, 'Splits', set_name + '.txt')).readlines()]
         self.image_extension = image_extension
         self.skip_truncated = skip_truncated
         self.skip_difficult = skip_difficult
@@ -162,10 +163,11 @@ class PascalVocGenerator(Generator):
         """
         Parse an annotation given an XML element.
         """
-        truncated = _findNode(element, 'truncated', parse=int)
-        difficult = _findNode(element, 'difficult', parse=int)
+        #truncated = _findNode(element, 'truncated', parse=int)
+        #difficult = _findNode(element, 'difficult', parse=int)
 
         class_name = _findNode(element, 'name').text
+
         if class_name not in self.classes:
             raise ValueError('class name \'{}\' not found in classes: {}'.format(class_name, list(self.classes.keys())))
 
@@ -173,12 +175,12 @@ class PascalVocGenerator(Generator):
         label = self.name_to_label(class_name)
 
         bndbox = _findNode(element, 'bndbox')
-        box[0] = _findNode(bndbox, 'xmin', 'bndbox.xmin', parse=float) - 1
-        box[1] = _findNode(bndbox, 'ymin', 'bndbox.ymin', parse=float) - 1
-        box[2] = _findNode(bndbox, 'xmax', 'bndbox.xmax', parse=float) - 1
-        box[3] = _findNode(bndbox, 'ymax', 'bndbox.ymax', parse=float) - 1
+        box[0] = max(0, _findNode(bndbox, 'xmin', 'bndbox.xmin', parse=float) - 1)
+        box[1] = max(0, _findNode(bndbox, 'ymin', 'bndbox.ymin', parse=float) - 1)
+        box[2] = max(0, _findNode(bndbox, 'xmax', 'bndbox.xmax', parse=float) - 1)
+        box[3] = max(0, _findNode(bndbox, 'ymax', 'bndbox.ymax', parse=float) - 1)
 
-        return truncated, difficult, box, label
+        return box, label
 
     def __parse_annotations(self, xml_root):
         """
@@ -188,14 +190,14 @@ class PascalVocGenerator(Generator):
                        'bboxes': np.empty((0, 4))}
         for i, element in enumerate(xml_root.iter('object')):
             try:
-                truncated, difficult, box, label = self.__parse_annotation(element)
+                box, label = self.__parse_annotation(element)
             except ValueError as e:
                 raise_from(ValueError('could not parse object #{}: {}'.format(i, e)), None)
 
-            if truncated and self.skip_truncated:
-                continue
-            if difficult and self.skip_difficult:
-                continue
+            #if truncated and self.skip_truncated:
+            #    continue
+            #if difficult and self.skip_difficult:
+            #    continue
 
             annotations['bboxes'] = np.concatenate([annotations['bboxes'], [box]])
             annotations['labels'] = np.concatenate([annotations['labels'], [label]])

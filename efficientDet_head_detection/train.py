@@ -159,7 +159,7 @@ def create_generators(args):
         from generators.pascal import PascalVocGenerator
         train_generator = PascalVocGenerator(
             args.pascal_path,
-            'trainval',
+            'train',
             skip_difficult=True,
             misc_effect=misc_effect,
             visual_effect=visual_effect,
