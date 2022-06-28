@@ -21,7 +21,7 @@ Second Dataset: https://github.com/ondyari/FaceForensics
 
 1. First download from the upper link files "0-CelebA.zip, 0-FFHQ.zip, 1-ATTGAN.zip, 1-GDWCT.zip, 1-StarGAN.zip, 1-STYLEGAN.zip, 1-STYLEGAN2.zip" from the section "release of full training set".
 
-2. Extract all archives in a directory which I will call <sets_path>
+2. Extract all archives in a directory which I will call `<sets_path>`
 
 3. With the script furnished by the FaceForensics repository, download all the subsets of FF++.
 
@@ -34,3 +34,14 @@ Second Dataset: https://github.com/ondyari/FaceForensics
 
 6. If you also need the txt_list files (train.txt, val.txt and test.txt) containing the list of image paths followed by the label, you can use another script aswell.
 * `python utils/data_list_creator.py -p <train_set_path> -o <output_path>/train.txt`
+
+## Dataset for Head Detection
+The dataset we used to train the head-detector is "HollywoodHeads", which is presented in this paper: https://arxiv.org/pdf/1511.07917.pdf .
+This dataset is in the Pascal-VOC format.
+
+* Download the dataset: `wget -P data http://www.di.ens.fr/willow/research/headdetection/release/HollywoodHeads.zip`
+* Unpack it: `unzip data/HollywoodHeads.zip -d data`
+* Remove all the images and annotations without a head: 'python dataset_register.py' (Rember to specify your dataset path inside the script's main!)
+
+## EfficientDet Head Detector Training
+* `python train.py --snapshot imagenet --phi 0 --gpu 0 -- random-transform --compute-val-loss --freeze-backbone --batch-size 32 --steps 1000 --pascal <hollywoodheads_dataset_path>`
