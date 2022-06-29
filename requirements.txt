@@ -30,3 +30,4 @@ torchvision
 tqdm==4.25.0
 sklearn
 matplotlib
+pytorchcv
