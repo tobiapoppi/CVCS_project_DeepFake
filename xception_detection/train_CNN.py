@@ -13,6 +13,8 @@ from models import model_selection
 from mesonet import Meso4, MesoInception4
 from dataset.transform import xception_default_data_transforms
 from dataset.mydataset import MyDataset
+from matplotlib import pyplot as plt
+
 def main():
 	args = parse.parse_args()
 	name = args.name
@@ -49,11 +51,13 @@ def main():
 	criterion = nn.CrossEntropyLoss(class_weights)
 	# optimizer = optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
 	optimizer = optim.Adam(model.parameters(), lr=0.001, betas=(0.9, 0.999), eps=1e-08)
-	scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.5)
+	scheduler = lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.05)
 	model = nn.DataParallel(model)
 	best_model_wts = model.state_dict()
 	best_acc = 0.0
 	iteration = 0
+	epoch_losses = []
+	epoch_accs = []
 	for epoch in range(epoches):
 		print('Epoch {}/{}'.format(epoch+1, epoches))
 		print('-'*10)
@@ -62,11 +66,12 @@ def main():
 		train_corrects = 0.0
 		val_loss = 0.0
 		val_corrects = 0.0
+
 		for (image, labels) in train_loader:
 			iter_loss = 0.0
 			iter_corrects = 0.0
-			#image = image.cuda()
-			#labels = labels.cuda()
+			image = image.cuda()
+			labels = labels.cuda()
 			optimizer.zero_grad()
 			outputs = model(image)
 			_, preds = torch.max(outputs.data, 1)
@@ -78,17 +83,17 @@ def main():
 			iter_corrects = torch.sum(preds == labels.data).to(torch.float32)
 			train_corrects += iter_corrects
 			iteration += 1
-			if not (iteration % 20): #enter only if multiple of 20
+			if not (iteration % 100): #enter only if multiple of 20
 				#the dataset is strongly unbalanced, so we need to check some others metrics like f1-score
-				this_iter_acc = iter_corrects / batch_size
-				this_iter_f1 = f1_loss(outputs, labels)
-				print('iteration {} train loss: {:.4f} Acc: {:.4f} F1-score: {:.4f}'.format(iteration, iter_loss / batch_size, iter_corrects / batch_size, this_iter_f1))
+				#this_iter_acc = iter_corrects / batch_size
+				#this_iter_f1 = f1_loss(outputs, labels)
+				print('iteration {} train loss: {:.4f} Acc: {:.4f} '.format(iteration, iter_loss / batch_size, iter_corrects / batch_size))
 
 
 		epoch_loss = train_loss / train_dataset_size
 		epoch_acc = train_corrects / train_dataset_size
 		print('epoch train loss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
-
+		true_one, true_zero, false_one, false_zero = 0, 0, 0, 0
 		model.eval()
 		with torch.no_grad():
 			for (image, labels) in val_loader:
@@ -99,15 +104,39 @@ def main():
 				loss = criterion(outputs, labels)
 				val_loss += loss.data.item()
 				val_corrects += torch.sum(preds == labels.data).to(torch.float32)
+				true_zero += torch.sum((preds == labels.data) * (preds == 0)).to(torch.float32)
+				false_zero += torch.sum((preds != labels.data) * (preds == 0)).to(torch.float32)
+				true_one += torch.sum((preds == labels.data) * (preds == 1)).to(torch.float32)
+				false_one += torch.sum((preds != labels.data) * (preds == 1)).to(torch.float32)
 			epoch_loss = val_loss / val_dataset_size
 			epoch_acc = val_corrects / val_dataset_size
+			epoch_precision1 = true_one / (true_one+false_one)
+			epoch_precision0 = true_zero / (true_zero+false_zero)
+			epoch_recall1 = true_one / (true_one+false_zero)
+			epoch_recall0 = true_zero / (true_zero+false_one)
+			epoch_losses.append(epoch_loss)
+			epoch_accs.append(epoch_acc.item())
 			print('epoch val loss: {:.4f} Acc: {:.4f}'.format(epoch_loss, epoch_acc))
+			print('epoch precision: {:.4f} for class 1 {:.4f} for class 0'.format(epoch_precision1, epoch_precision0))
+			print('epoch recall: {:.4f} for class 1 {:.4f} for class 0'.format(epoch_recall1, epoch_recall0))
+
 			if epoch_acc > best_acc:
 				best_acc = epoch_acc
 				best_model_wts = model.state_dict()
 		scheduler.step()
+
 		#if not (epoch % 40):
 		torch.save(model.module.state_dict(), os.path.join(output_path, str(epoch) + '_' + model_name))
+	"""Loss representation:"""
+	x = np.linspace(0, 10, epoches)
+	plt.figure(0)
+	plt.plot(x, epoch_losses, color='red')
+	plt.title('{}_losses'.format(model_name))
+	plt.show()
+	plt.figure(1)
+	plt.plot(x, epoch_losses, color='blue')
+	plt.title('{}_accuracy'.format(model_name))
+	plt.show()
 	print('Best val Acc: {:.4f}'.format(best_acc))
 	model.load_state_dict(best_model_wts)
 	torch.save(model.module.state_dict(), os.path.join(output_path, "best.pkl"))
@@ -158,8 +187,8 @@ if __name__ == '__main__':
 	parse.add_argument('--train_list', '-tl' , type=str, default = './data_list/FaceSwap_c0_train.txt')
 	parse.add_argument('--val_list', '-vl' , type=str, default = './data_list/FaceSwap_c0_val.txt')
 	parse.add_argument('--batch_size', '-bz', type=int, default=64)
-	parse.add_argument('--epoches', '-e', type=int, default='20')
-	parse.add_argument('--model_name', '-mn', type=str, default='fs_c0_299.pkl')
+	parse.add_argument('--epoches', '-e', type=int, default='15')
+	parse.add_argument('--model_name', '-mn', type=str, default='adam_steplr0_001_balanced_data.pkl')
 	parse.add_argument('--continue_train', type=bool, default=False)
 	parse.add_argument('--model_path', '-mp', type=str, default='./output/df_xception_c0_299/1_df_c0_299.pkl')
 	main()
