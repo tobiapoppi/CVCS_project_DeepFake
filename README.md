@@ -52,6 +52,8 @@ Then, a second training, starting from the weights of last epoch of first traini
 Increasing the steps means forcing the CNN to process a lot more data in a single epoch. In addition, we reduced batch size.
 * `python train.py --snapshot <path_to_model.h5> --phi 0 --gpu 0 --weighted-bifpn --random-transform --compute-val-loss --freeze-bn --batch-size 4 --steps 10000 pascal /data/HollywoodHeads/`
 
+Now we can select, in the 50 epochs weights of last training, the one with the best trade-off in the train-val loss graph.
+
 ## Inference of EfficientDet on CVCS Dataset
 Now we need to inference efficientDet model on our dataset, in order to create a new copy of CVCS dataset, but only with cropped heads. We will use this dataset to train xception net.
 Then, for DeepFake detection inference, we provide a script which first detect the head and then classify it fake or not. So the final system will also generalize on non-cropped images.
