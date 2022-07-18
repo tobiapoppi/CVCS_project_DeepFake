@@ -44,4 +44,21 @@ This dataset is in the Pascal-VOC format.
 * Remove all the images and annotations without a head: `python dataset_register.py` (Rember to specify your dataset path inside the script's main!)
 
 ## EfficientDet Head Detector Training
+
+First, we did a training starting from imagenet weights, freezing backbone layers.
 * `python train.py --snapshot imagenet --phi 0 --gpu 0 -- random-transform --compute-val-loss --freeze-backbone --batch-size 32 --steps 1000 --pascal <hollywoodheads_dataset_path>`
+
+Then, a second training, starting from the weights of last epoch of first training, freezing BatchNormalization layers, and using a higher steps value.
+Increasing the steps means forcing the CNN to process a lot more data in a single epoch. In addition, we reduced batch size.
+* `python train.py --snapshot <path_to_model.h5> --phi 0 --gpu 0 --weighted-bifpn --random-transform --compute-val-loss --freeze-bn --batch-size 4 --steps 10000 pascal /data/HollywoodHeads/`
+
+## Inference of EfficientDet on CVCS Dataset
+Now we need to inference efficientDet model on our dataset, in order to create a new copy of CVCS dataset, but only with cropped heads. We will use this dataset to train xception net.
+Then, for DeepFake detection inference, we provide a script which first detect the head and then classify it fake or not. So the final system will also generalize on non-cropped images.
+
+* `cd CVCS_project_DeepFake`
+* `python -m CVCS_project_DeepFake.efficientDetheaddetection.inference`
+
+n.b.: be sure to set all the correct paths in `inference.py`
+
+
