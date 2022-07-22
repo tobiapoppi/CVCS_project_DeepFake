@@ -14,9 +14,12 @@ from mesonet import Meso4, MesoInception4
 from dataset.transform import xception_default_data_transforms
 from dataset.mydataset import MyDataset
 from matplotlib import pyplot as plt
+import random
 random_seed = 12
 torch.manual_seed(random_seed)
 torch.cuda.manual_seed(random_seed)
+np.random.seed(random_seed)
+random.seed(random_seed)
 
 def main():
 	args = parse.parse_args()
