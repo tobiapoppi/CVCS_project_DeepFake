@@ -129,15 +129,15 @@ def main():
 		torch.save(model.module.state_dict(), os.path.join(output_path, str(epoch) + '_' + model_name))
 	"""Loss representation:"""
 	x = np.linspace(0, 10, epoches)
-	plt.figure(0)
-	plt.plot(x, epoch_losses, color='red')
-	plt.title('{}_losses'.format(model_name))
-	plt.show()
-	plt.figure(1)
-	plt.plot(x, epoch_accs, color='blue')
-	plt.title('{}_accuracy'.format(model_name))
-	plt.show()
-	with open('/home/elena/repos/CVCS_project_DeepFake/'+model_name[:-4]+'.txt', 'w') as f:
+	#plt.figure(0)
+	#plt.plot(x, epoch_losses, color='red')
+	#plt.title('{}_losses'.format(model_name))
+	#plt.show()
+	#plt.figure(1)
+	#plt.plot(x, epoch_accs, color='blue')
+	#plt.title('{}_accuracy'.format(model_name))
+	#plt.show()
+	with open(model_name[:-4]+'.txt', 'w') as f:
 		f.write('accuracy '+ str(epoch_accs)+'\n')
 		f.write('loss '+ str(epoch_losses)+'\n')
 		f.write('epoch recall: {:.4f} for class 1 {:.4f} for class 0'.format(epoch_recall1, epoch_recall0))
@@ -188,11 +188,11 @@ def f1_loss(y_true:torch.Tensor, y_pred:torch.Tensor, is_training=False) -> torc
 if __name__ == '__main__':
 	parse = argparse.ArgumentParser(
 		formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-	parse.add_argument('--name', '-n', type=str, default='fs_xception_c0_299')
+	parse.add_argument('--name', '-n', type=str, default='dfd_xception')
 	parse.add_argument('--train_list', '-tl' , type=str, default = './data_list/FaceSwap_c0_train.txt')
 	parse.add_argument('--val_list', '-vl' , type=str, default = './data_list/FaceSwap_c0_val.txt')
 	parse.add_argument('--batch_size', '-bz', type=int, default=64)
-	parse.add_argument('--epoches', '-e', type=int, default='1')
+	parse.add_argument('--epoches', '-e', type=int, default='20')
 	parse.add_argument('--model_name', '-mn', type=str, default='sgd_steplr0_005_original_unbalanced_data.pkl')
 	parse.add_argument('--continue_train', type=bool, default=False)
 	parse.add_argument('--model_path', '-mp', type=str, default='./output/df_xception_c0_299/1_df_c0_299.pkl')
