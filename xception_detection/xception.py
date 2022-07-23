@@ -65,7 +65,7 @@ class Block(nn.Module):
             self.skip = nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
             self.skipbn = nn.BatchNorm2d(out_filters)
         else:
-            self.skip = nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
+            self.skip = None #nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
 
         self.relu = nn.ReLU(inplace=True)
         rep=[]
@@ -141,7 +141,7 @@ class Xception(nn.Module):
         self.block5=Block(728,728,3,1,start_with_relu=True,grow_first=True)
         self.block6=Block(728,728,3,1,start_with_relu=True,grow_first=True)
         self.block7=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-
+        #
         self.block8=Block(728,728,3,1,start_with_relu=True,grow_first=True)
         self.block9=Block(728,728,3,1,start_with_relu=True,grow_first=True)
         self.block10=Block(728,728,3,1,start_with_relu=True,grow_first=True)
@@ -184,10 +184,10 @@ class Xception(nn.Module):
         x = self.block5(x)
         x = self.block6(x)
         x = self.block7(x)
-        x = self.block8(x)
-        x = self.block9(x)
-        x = self.block10(x)
-        x = self.block11(x)
+        # x = self.block8(x)
+        # x = self.block9(x)
+        # x = self.block10(x)
+        # x = self.block11(x)
         x = self.block12(x) #(1024, 299, 299)
 
         x = self.conv3(x) #(1536, 299, 299)
