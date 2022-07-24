@@ -1,7 +1,7 @@
 # Deep Learning for DeepFake Creation and Detection
 Project for the exam "Computer Vision and Cognitive Systems"
 
-This is a project for DeepFakes Detection, and we implemented several computer vision techniques in order to do this task.
+This is a project for DeepFakes Detection, and we implemented several computer vision techniques in order to perform this task.
 
 ![alt text](images/2.png)
 
@@ -42,12 +42,17 @@ Third Dataset: http://www.di.ens.fr/willow/research/headdetection/release/Hollyw
 * `python utils/data_list_creator.py -p <train_set_path> -o <output_path>/train.txt`
 
 ## Dataset for Head Detection
+
+![alt text](images/3.png)
+![alt text](images/4.png)
+
 The dataset we used to train the head-detector is "HollywoodHeads", which is presented in this paper: https://arxiv.org/pdf/1511.07917.pdf .
 This dataset is in the Pascal-VOC format.
 
 * Download the dataset: `wget -P data http://www.di.ens.fr/willow/research/headdetection/release/HollywoodHeads.zip`
 * Unpack it: `unzip data/HollywoodHeads.zip -d data`
 * Remove all the images and annotations without a head: `python dataset_register.py` (Rember to specify your dataset path inside the script's main!)
+
 
 ## EfficientDet Head Detector Training
 
@@ -59,6 +64,8 @@ Increasing the steps means forcing the CNN to process a lot more data in a singl
 * `python train.py --snapshot <path_to_model.h5> --phi 0 --gpu 0 --weighted-bifpn --random-transform --compute-val-loss --freeze-bn --batch-size 4 --steps 10000 pascal /data/HollywoodHeads/`
 
 Now we can select, in the 50 epochs weights of last training, the one with the best trade-off in the train-val loss graph.
+
+![alt text](images/5.png)
 
 ## Inference of EfficientDet on CVCS Dataset
 Now we need to inference efficientDet model on our dataset, in order to create a new copy of CVCS dataset, but only with cropped heads. We will use this dataset to train xception net.
