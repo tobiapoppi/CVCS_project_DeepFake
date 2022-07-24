@@ -1,4 +1,4 @@
-# CVCS project DeepFake
+# Deep Learning for DeepFake Creation and Detection
 Project for the exam "Computer Vision and Cognitive Systems"
 
 This is a project for DeepFakes Detection, and we implemented several computer vision techniques in order to do this task.
@@ -10,6 +10,8 @@ The dataset we first try to use is full training set, task 1.
 Task 1 of the challenge in the link is the Detection task.
 
 Second Dataset: https://github.com/ondyari/FaceForensics
+
+Third Dataset: http://www.di.ens.fr/willow/research/headdetection/release/HollywoodHeads.zip
 
 ## Setting up the environment
 * `conda create -n cvcs python=3.7`
@@ -59,8 +61,15 @@ Now we need to inference efficientDet model on our dataset, in order to create a
 Then, for DeepFake detection inference, we provide a script which first detect the head and then classify it fake or not. So the final system will also generalize on non-cropped images.
 
 * `cd CVCS_project_DeepFake`
-* `python -m CVCS_project_DeepFake.efficientDetheaddetection.inference`
+* `python efficientDet_head_detection/inference_cropped_dataset_creator.py`
 
 n.b.: be sure to set all the correct paths in `inference.py`
+
+## Xception Training
+
+* `cd CVCS_project_DeepFake`
+* `python xception_detector/train_CNN.py --batch_size 16 --train_list ../CVCS_project_DeepFake/train.txt --val_list ../CVCS_project_DeepFake/val.txt --model_name detector_c0_200_first_try.pkl --model_path ./output/df_xception_c0_299/detector_c0_200_first_try.pkl`
+
+With this command you can train xception. Remember to set the type of architecture inside the script! (modelname = ['xception' or 'midwayxcaption' or 'lightxception']).
 
 
