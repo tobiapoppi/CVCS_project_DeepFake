@@ -3,7 +3,9 @@ Project for the exam "Computer Vision and Cognitive Systems"
 
 This is a project for DeepFakes Detection, and we implemented several computer vision techniques in order to do this task.
 
-![alt text](https://github.com/tobi1modna/CVCS_project_DeepFake/images/1.png)
+![alt text](images/2.png)
+
+![alt text](images/1.png)
 
 We are using two datasets. 
 First Dataset: https://iplab.dmi.unict.it/deepfakechallenge/#[object%20Object]
