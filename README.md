@@ -3,6 +3,8 @@ Project for the exam "Computer Vision and Cognitive Systems"
 
 This is a project for DeepFakes Detection, and we implemented several computer vision techniques in order to do this task.
 
+![alt text](https://github.com/tobi1modna/CVCS_project_DeepFake/images/1.png)
+
 We are using two datasets. 
 First Dataset: https://iplab.dmi.unict.it/deepfakechallenge/#[object%20Object]
 
@@ -73,3 +75,11 @@ n.b.: be sure to set all the correct paths in `inference.py`
 With this command you can train xception. Remember to set the type of architecture inside the script! (modelname = ['xception' or 'midwayxcaption' or 'lightxception']).
 
 All the scripts for inference are provided, but they are not automatized to work in all scenarios, so please adapt them to your needs! :)
+
+## Image Retrieval
+* `cd CVCS_project_DeepFake`
+* `python feature_extraction.py`
+* `python image_retrieval.py`
+
+Please, set all the right parameters manually inside the two scripts! :)
+
