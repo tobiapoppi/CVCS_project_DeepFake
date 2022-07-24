@@ -72,4 +72,4 @@ n.b.: be sure to set all the correct paths in `inference.py`
 
 With this command you can train xception. Remember to set the type of architecture inside the script! (modelname = ['xception' or 'midwayxcaption' or 'lightxception']).
 
-
+All the scripts for inference are provided, but they are not automatized to work in all scenarios, so please adapt them to your needs! :)
