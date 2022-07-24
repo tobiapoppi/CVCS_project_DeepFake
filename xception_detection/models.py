@@ -10,13 +10,14 @@ import torch
 #import pretrainedmodels
 import torch.nn as nn
 import torch.nn.functional as F
-from xception import xception, xception_concat
+from xception import xception
+from midwayxception import midwayxception
+from lightxception import lightxception
 import math
 import torchvision
 
 
 def return_pytorch04_xception(pretrained=False):
-    # Raises warning "src not broadcastable to dst" but thats fine
     model = xception(pretrained=False)
     if pretrained:
         # Load model in torch 0.4+
@@ -30,6 +31,14 @@ def return_pytorch04_xception(pretrained=False):
         model.load_state_dict(state_dict)
         model.last_linear = model.fc
         del model.fc
+    return model
+
+def return_pytorch04_midwayxception(pretrained=False):
+    model = midwayxception(pretrained=False)
+    return model
+
+def return_pytorch04_lightxception(pretrained=False):
+    model = lightxception(pretrained=False)
     return model
 
 
@@ -53,8 +62,21 @@ class TransferModel(nn.Module):
                     nn.Dropout(p=dropout),
                     nn.Linear(num_ftrs, num_out_classes)
                 )
-        elif modelchoice == 'xception_concat':
-            self.model = xception_concat()
+        elif modelchoice == 'midwayxception':
+            self.model = return_pytorch04_midwayxception(pretrained=False)
+            # Replace fc
+            num_ftrs = self.model.last_linear.in_features
+            if not dropout:
+                self.model.last_linear = nn.Linear(num_ftrs, num_out_classes)
+            else:
+                print('Using dropout', dropout)
+                self.model.last_linear = nn.Sequential(
+                    nn.Dropout(p=dropout),
+                    nn.Linear(num_ftrs, num_out_classes)
+                )
+        elif modelchoice == 'lightxception':
+            self.model = return_pytorch04_lightxception(pretrained=False)
+            # Replace fc
             num_ftrs = self.model.last_linear.in_features
             if not dropout:
                 self.model.last_linear = nn.Linear(num_ftrs, num_out_classes)
@@ -134,6 +156,14 @@ def model_selection(modelname, num_out_classes,
     """
     if modelname == 'xception':
         return TransferModel(modelchoice='xception',
+                             num_out_classes=num_out_classes)
+    #    , 299, \True, ['image'], None
+    elif modelname == 'midwayxception':
+        return TransferModel(modelchoice='midwayxception',
+                             num_out_classes=num_out_classes)
+    #    , 299, \True, ['image'], None
+    elif modelname == 'lightxception':
+        return TransferModel(modelchoice='lightxception',
                              num_out_classes=num_out_classes)
     #    , 299, \True, ['image'], None
     elif modelname == 'resnet18':

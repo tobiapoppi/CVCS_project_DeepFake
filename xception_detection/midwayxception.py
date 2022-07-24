@@ -44,11 +44,11 @@ pretrained_settings = {
 }
 
 
-class SeparableConv2d(nn.Module):
+class MidwaySeparableConv2d(nn.Module):
     def __init__(self,in_channels,out_channels,kernel_size=1,stride=1,padding=0,dilation=1,bias=False):
-        super(SeparableConv2d,self).__init__()
+        super(MidwaySeparableConv2d,self).__init__()
 
-        self.conv1 = nn.Conv2d(in_channels,in_channels,kernel_size,stride,padding,dilation,groups=in_channels,bias=bias)
+        self.conv1 = nn.Conv2d(in_channels,in_channels,kernel_size,stride,padding,dilation,groups=int(in_channels/2),bias=bias)
         self.pointwise = nn.Conv2d(in_channels,out_channels,1,1,0,1,1,bias=bias)
 
     def forward(self,x):
@@ -57,15 +57,12 @@ class SeparableConv2d(nn.Module):
         return x
 
 
-class Block(nn.Module):
+class MidwayBlock(nn.Module):
     def __init__(self,in_filters,out_filters,reps,strides=1,start_with_relu=True,grow_first=True):
-        super(Block, self).__init__()
+        super(MidwayBlock, self).__init__()
 
-        if out_filters != in_filters or strides!=1:
-            self.skip = nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
-            self.skipbn = nn.BatchNorm2d(out_filters)
-        else:
-            self.skip = None #nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
+        self.skip = nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
+        self.skipbn = nn.BatchNorm2d(out_filters)
 
         self.relu = nn.ReLU(inplace=True)
         rep=[]
@@ -73,18 +70,18 @@ class Block(nn.Module):
         filters=in_filters
         if grow_first:
             rep.append(self.relu)
-            rep.append(SeparableConv2d(in_filters,out_filters,3,stride=1,padding=1,bias=False))
+            rep.append(MidwaySeparableConv2d(in_filters,out_filters,3,stride=1,padding=1,bias=False))
             rep.append(nn.BatchNorm2d(out_filters))
             filters = out_filters
 
         for i in range(reps-1):
             rep.append(self.relu)
-            rep.append(SeparableConv2d(filters,filters,3,stride=1,padding=1,bias=False))
+            rep.append(MidwaySeparableConv2d(filters,filters,3,stride=1,padding=1,bias=False))
             rep.append(nn.BatchNorm2d(filters))
 
         if not grow_first:
             rep.append(self.relu)
-            rep.append(SeparableConv2d(in_filters,out_filters,3,stride=1,padding=1,bias=False))
+            rep.append(MidwaySeparableConv2d(in_filters,out_filters,3,stride=1,padding=1,bias=False))
             rep.append(nn.BatchNorm2d(out_filters))
 
         if not start_with_relu:
@@ -99,27 +96,19 @@ class Block(nn.Module):
     def forward(self,inp):
         x = self.rep(inp)
 
-        if self.skip is not None:
-            skip = self.skip(inp)
-            skip = self.skipbn(skip)
-        else:
-            skip = inp
+        skip = self.skip(inp)
+        skip = self.skipbn(skip)
 
         x+=skip
         return x
 
-
-class Xception(nn.Module):
-    """
-    Xception optimized for the ImageNet dataset, as specified in
-    https://arxiv.org/pdf/1610.02357.pdf
-    """
+class MidwayXception(nn.Module):
     def __init__(self, num_classes=1000):
         """ Constructor
         Args:
             num_classes: number of classes
         """
-        super(Xception, self).__init__()
+        super(MidwayXception, self).__init__()
         self.num_classes = num_classes
 
         #self.conv1 = nn.Conv2d(15,32,3,2,0,bias=False)
@@ -131,29 +120,29 @@ class Xception(nn.Module):
         self.bn2 = nn.BatchNorm2d(64)
         #do relu here
 
-        self.block1=Block(64,128,2,2,start_with_relu=False,grow_first=True)
-        self.block2=Block(128,256,2,2,start_with_relu=True,grow_first=True)
-        self.block3=Block(256,728,2,2,start_with_relu=True,grow_first=True)
+        self.block1=MidwayBlock(64,128,2,2,start_with_relu=False,grow_first=True)
+        self.block2=MidwayBlock(128,256,2,2,start_with_relu=True,grow_first=True)
+        self.block3=MidwayBlock(256,728,2,2,start_with_relu=True,grow_first=True)
 
         #middle flow
 
-        self.block4=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block5=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block6=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block7=Block(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block4=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block5=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block6=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block7=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
         #
-        self.block8=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block9=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block10=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block11=Block(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block8=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block9=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block10=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
+        self.block11=MidwayBlock(728,728,3,1,start_with_relu=True,grow_first=True)
 
-        self.block12=Block(728,1024,2,2,start_with_relu=True,grow_first=False)
+        self.block12=MidwayBlock(728,1024,2,2,start_with_relu=True,grow_first=False)
 
-        self.conv3 = SeparableConv2d(1024,1536,3,1,1)
+        self.conv3 = MidwaySeparableConv2d(1024,1536,3,1,1)
         self.bn3 = nn.BatchNorm2d(1536)
 
         #do relu here
-        self.conv4 = SeparableConv2d(1536,2048,3,1,1)
+        self.conv4 = MidwaySeparableConv2d(1536,2048,3,1,1)
         self.bn4 = nn.BatchNorm2d(2048)
 
         self.fc = nn.Linear(2048, num_classes)
@@ -211,15 +200,14 @@ class Xception(nn.Module):
         x = self.logits(x)
         return x
 
-    
-def xception(num_classes=1000, pretrained='imagenet'):
-    model = Xception(num_classes=num_classes)
+def midwayxception(num_classes=1000, pretrained='imagenet'):
+    model = MidwayXception(num_classes=num_classes)
     if pretrained:
         settings = pretrained_settings['xception'][pretrained]
         assert num_classes == settings['num_classes'], \
             "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
 
-        model = Xception(num_classes=num_classes)
+        model = MidwayXception(num_classes=num_classes)
         model.load_state_dict(model_zoo.load_url(settings['url']))
 
         model.input_space = settings['input_space']
@@ -231,3 +219,4 @@ def xception(num_classes=1000, pretrained='imagenet'):
     model.last_linear = model.fc
     del model.fc
     return model
+

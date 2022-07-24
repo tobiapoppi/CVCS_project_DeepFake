@@ -65,7 +65,7 @@ class Block(nn.Module):
             self.skip = nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
             self.skipbn = nn.BatchNorm2d(out_filters)
         else:
-            self.skip = None #nn.Conv2d(in_filters,out_filters,1,stride=strides, bias=False)
+            self.skip = None
 
         self.relu = nn.ReLU(inplace=True)
         rep=[]
@@ -109,7 +109,7 @@ class Block(nn.Module):
         return x
 
 
-class Xception(nn.Module):
+class LightXception(nn.Module):
     """
     Xception optimized for the ImageNet dataset, as specified in
     https://arxiv.org/pdf/1610.02357.pdf
@@ -119,7 +119,7 @@ class Xception(nn.Module):
         Args:
             num_classes: number of classes
         """
-        super(Xception, self).__init__()
+        super(LightXception, self).__init__()
         self.num_classes = num_classes
 
         #self.conv1 = nn.Conv2d(15,32,3,2,0,bias=False)
@@ -142,12 +142,8 @@ class Xception(nn.Module):
         self.block6=Block(728,728,3,1,start_with_relu=True,grow_first=True)
         self.block7=Block(728,728,3,1,start_with_relu=True,grow_first=True)
         #
-        self.block8=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block9=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block10=Block(728,728,3,1,start_with_relu=True,grow_first=True)
-        self.block11=Block(728,728,3,1,start_with_relu=True,grow_first=True)
 
-        self.block12=Block(728,1024,2,2,start_with_relu=True,grow_first=False)
+        self.block8=Block(728,1024,2,2,start_with_relu=True,grow_first=False)
 
         self.conv3 = SeparableConv2d(1024,1536,3,1,1)
         self.bn3 = nn.BatchNorm2d(1536)
@@ -184,11 +180,7 @@ class Xception(nn.Module):
         x = self.block5(x)
         x = self.block6(x)
         x = self.block7(x)
-        x = self.block8(x)
-        x = self.block9(x)
-        x = self.block10(x)
-        x = self.block11(x)
-        x = self.block12(x) #(1024, 299, 299)
+        x = self.block8(x) #(1024, 299, 299)
 
         x = self.conv3(x) #(1536, 299, 299)
         x = self.bn3(x)
@@ -212,14 +204,14 @@ class Xception(nn.Module):
         return x
 
     
-def xception(num_classes=1000, pretrained='imagenet'):
-    model = Xception(num_classes=num_classes)
+def lightxception(num_classes=1000, pretrained='imagenet'):
+    model = LightXception(num_classes=num_classes)
     if pretrained:
         settings = pretrained_settings['xception'][pretrained]
         assert num_classes == settings['num_classes'], \
             "num_classes should be {}, but is {}".format(settings['num_classes'], num_classes)
 
-        model = Xception(num_classes=num_classes)
+        model = LightXception(num_classes=num_classes)
         model.load_state_dict(model_zoo.load_url(settings['url']))
 
         model.input_space = settings['input_space']
