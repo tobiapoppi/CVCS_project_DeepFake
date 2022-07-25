@@ -53,7 +53,7 @@ sift_unlimited = cv2.SIFT_create(500)
 new_img = []
 labels = []
 for i, im in enumerate(train_files):
-    image = cv2.imread(im, 0)
+    image = cv2.imread(im)
     kp, des = sift_unlimited.detectAndCompute(image, None)
     clusters = kmeans.predict(des)
     epsilon = random.random()
@@ -75,7 +75,7 @@ np.save('xTrain', xTrain)
 new_img = []
 labels = []
 for i, im in enumerate(test_files):
-    image = cv2.imread(im, 0)
+    image = cv2.imread(im)
     kp, des = sift.detectAndCompute(image, None)
     clusters = kmeans.predict(des)
     histogram = [list(clusters).count(i) for i in range(C)]
